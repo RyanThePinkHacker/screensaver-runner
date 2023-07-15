@@ -23,11 +23,16 @@ fn screensaver_runner(args: Args) {
 
 fn main() {
     let args = Args::parse();
-    thread::spawn(move || screensaver_runner(args));
+    let screensaver_handle = thread::spawn(move || screensaver_runner(args));
 
     let device_state = DeviceState::new();
     let inital_mouse_position = device_state.get_mouse().coords;
     loop {
+        // Exit if screensaver is done running
+        if screensaver_handle.is_finished() {
+            break;
+        }
+
         let mouse = device_state.get_mouse();
         if inital_mouse_position != mouse.coords {
             break;
